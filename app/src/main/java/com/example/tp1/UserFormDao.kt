@@ -2,7 +2,7 @@ package com.example.tp1
 
 import androidx.room.Dao
 import androidx.room.Insert
-
+import androidx.room.Query
 
 @Dao
 interface UserFormDao {

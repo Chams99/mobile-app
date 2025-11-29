@@ -1,5 +1,6 @@
 package com.example.tp1
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -105,16 +106,43 @@ fun FormulairePage() {
 
         Button(
             onClick = {
+                // Validation
+                if (name.isBlank()) {
+                    Toast.makeText(context, "Veuillez entrer un nom", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    Toast.makeText(context, "Veuillez entrer un email valide", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                if (!isAgreed) {
+                    Toast.makeText(context, "Veuillez accepter les termes", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
                 scope.launch {
-                    db.dao().insert(
-                        UserForm(
-                            name = name,
-                            email = email,
-                            gender = gender,
-                            country = selectedCountry,
-                            agreed = isAgreed
+                    try {
+                        db.dao().insert(
+                            UserForm(
+                                name = name.trim(),
+                                email = email.trim(),
+                                gender = gender,
+                                country = selectedCountry,
+                                agreed = isAgreed
+                            )
                         )
-                    )
+                        // Success feedback
+                        Toast.makeText(context, "Formulaire enregistré avec succès!", Toast.LENGTH_SHORT).show()
+                        
+                        // Reset form
+                        name = ""
+                        email = ""
+                        gender = "Male"
+                        selectedCountry = "France"
+                        isAgreed = false
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Erreur lors de l'enregistrement: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
