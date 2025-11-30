@@ -22,7 +22,8 @@ fun FormulairePage() {
     var email by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("Male") }
     var isAgreed by remember { mutableStateOf(false) }
-    var selectedCountry by remember { mutableStateOf("France") }
+    // Load default country from SharedPreferences
+    var selectedCountry by remember { mutableStateOf(PreferencesManager.getDefaultCountry()) }
     val countries = listOf("Tunisia", "France", "USA", "Canada")
 
     Column(
@@ -122,6 +123,7 @@ fun FormulairePage() {
 
                 scope.launch {
                     try {
+                        // Save to Room database (SQLite)
                         db.dao().insert(
                             UserForm(
                                 name = name.trim(),
@@ -131,14 +133,18 @@ fun FormulairePage() {
                                 agreed = isAgreed
                             )
                         )
+                        
+                        // Save country preference to SharedPreferences
+                        PreferencesManager.setDefaultCountry(selectedCountry)
+                        
                         // Success feedback
                         Toast.makeText(context, "Formulaire enregistré avec succès!", Toast.LENGTH_SHORT).show()
                         
-                        // Reset form
+                        // Reset form (but keep the saved country as default)
                         name = ""
                         email = ""
                         gender = "Male"
-                        selectedCountry = "France"
+                        // selectedCountry keeps the last selected value from SharedPreferences
                         isAgreed = false
                     } catch (e: Exception) {
                         Toast.makeText(context, "Erreur lors de l'enregistrement: ${e.message}", Toast.LENGTH_LONG).show()

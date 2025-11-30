@@ -21,7 +21,15 @@ fun ProductCard(
     goToRecords: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var backgroundColor by remember { mutableStateOf(Color(0xFFE3F2FD)) }
+    // Load theme from SharedPreferences
+    val savedTheme = PreferencesManager.getTheme()
+    val initialColor = if (savedTheme == PreferencesManager.THEME_LIGHT) {
+        Color(0xFFE3F2FD) // Light blue
+    } else {
+        Color(0xFFFFCDD2) // Pink
+    }
+    
+    var backgroundColor by remember { mutableStateOf(initialColor) }
 
     Box(
         modifier = modifier
@@ -66,17 +74,20 @@ fun ProductCard(
 
             Button(
                 onClick = {
-                    backgroundColor =
-                        if (backgroundColor == Color(0xFFE3F2FD))
-                            Color(0xFFFFCDD2)
-                        else
-                            Color(0xFFE3F2FD)
+                    // Toggle theme and save to SharedPreferences
+                    if (backgroundColor == Color(0xFFE3F2FD)) {
+                        backgroundColor = Color(0xFFFFCDD2)
+                        PreferencesManager.setTheme(PreferencesManager.THEME_DARK)
+                    } else {
+                        backgroundColor = Color(0xFFE3F2FD)
+                        PreferencesManager.setTheme(PreferencesManager.THEME_LIGHT)
+                    }
                 },
                 modifier = Modifier
                     .height(50.dp)
                     .width(150.dp)
             ) {
-                Text("OK")
+                Text("Toggle Theme")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
